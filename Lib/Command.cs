@@ -5,7 +5,7 @@ using System.Text;
 namespace Lib {
 	public interface Command {
 
-		public T Run<T>();
+		public void Run(string[] paramters);
 
 	}
 }

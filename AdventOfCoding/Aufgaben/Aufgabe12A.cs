@@ -28,7 +28,7 @@ namespace AdventOfCoding.Aufgaben {
 			this.result = GenerateAllPaths(map, "start", "end");
 
 			/* Output Region */
-			if(!IsDebug())
+			if(!IfDebugStopTimer())
 				return;
 
 			foreach(string key in map.Keys) {

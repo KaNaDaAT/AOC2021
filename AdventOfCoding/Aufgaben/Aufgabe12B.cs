@@ -29,7 +29,7 @@ namespace AdventOfCoding.Aufgaben {
 			this.result = paths.Count;
 
 			/* Output Region */
-			if(!IsDebug())
+			if(!IfDebugStopTimer())
 				return;
 
 			foreach(string path in paths.OrderBy(x => x)) {

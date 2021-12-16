@@ -8,11 +8,12 @@ namespace AdventOfCoding.Aufgaben {
 		protected object result;
 		protected StringBuilder toPrint = new StringBuilder();
 		private bool isDebugMode;
+		private Stopwatch stopwatch;
 
 		public (string output, Stopwatch sw) MainMethod(Reader reader, bool isDebugMode = false) {
 			this.isDebugMode = isDebugMode;
 			reader.ReadAndGetLines();
-			Stopwatch stopwatch = new Stopwatch();
+			stopwatch = new Stopwatch();
 
 			stopwatch.Start();
 			Runner(reader);
@@ -38,6 +39,13 @@ namespace AdventOfCoding.Aufgaben {
 		}
 
 		public bool IsDebug() {
+			return isDebugMode;
+		}
+
+		public bool IfDebugStopTimer() {
+			if(isDebugMode) {
+				stopwatch.Stop();
+			}
 			return isDebugMode;
 		}
 

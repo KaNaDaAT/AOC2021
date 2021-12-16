@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,7 +38,7 @@ namespace AdventOfCoding {
 
 		private Dispatcher dispatcher;
 
-		private Dictionary<string, Action> commands;
+		public Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
 		public UIConsole() {
 			InitializeComponent();
@@ -115,8 +116,14 @@ namespace AdventOfCoding {
 			Instance.tbConsole.IsReadOnly = true;
 		}
 
-		public static void ExecuteCommand(params string[] command) {
-
+		public static void ExecuteCommand(string[] commandArgs) {
+			SwitchToExecuteMode();
+			string commandName = commandArgs[0];
+			if(Instance.commands.ContainsKey(commandName)) {
+				WriteLine("");
+				Instance.commands[commandName].Run(commandArgs);
+			}
+			SwitchToCommandMode();
 		}
 
 		#region Event
@@ -141,9 +148,11 @@ namespace AdventOfCoding {
 			}
 		}
 
+
+
 		private void OnKeyDownHandler(object sender, KeyEventArgs e) {
 			if((e.Key == Key.Return || e.Key == Key.Enter) && tbConsole.CaretIndex >= CurrentText.Length) {
-				ExecuteCommand(Regex.Split(InputText, "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
+				ExecuteCommand(Regex.Split(InputText, "\\s(?=(?:[^\'\"`]*([\'\"`]).*?\\1)*[^\'\"`]*$)"));
 			}
 		}
 

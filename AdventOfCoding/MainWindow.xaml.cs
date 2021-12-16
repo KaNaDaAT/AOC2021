@@ -33,6 +33,14 @@ namespace AdventOfCoding {
 			UIConsole.SetDispatcher(this.Dispatcher);
 
 			CreateAdventButtons();
+
+			UndefinedCommand commandOpen = new UndefinedCommand();
+			commandOpen.Define("open", new Action<string>(CommandOpenFile)); // TODO Besser im Define mitgeben wie viele parameter. x für unendlich
+			UIConsole.Instance.commands.Add("open", commandOpen);
+
+			UndefinedCommand commandStart = new UndefinedCommand();
+			commandStart.Define("start b-d", new Action<string, bool>(CommandStartAufgabe)); // TODO Besser im Define mitgeben wie viele parameter. x für unendlich
+			UIConsole.Instance.commands.Add("start", commandStart);
 		}
 
 		private void CreateAdventButtons() {
@@ -87,43 +95,51 @@ namespace AdventOfCoding {
 			}
 		}
 
+		private void CommandOpenFile(string Aufgabe) {
+			Process.Start("notepad.exe", Environment.CurrentDirectory + "/Aufgabendata/" + Aufgabe + ".data");
+		}
+
+		private void CommandStartAufgabe(string Aufgabe, bool IsDebug) {
+			Type t = Type.GetType("AdventOfCoding.Aufgaben." + Aufgabe);
+			if(t == null) {
+				UIConsole.WriteLine("Class 'AdventOfCoding.Aufgaben" + Aufgabe + "' not found!");
+			} else {
+				AufgabeAbstract aufgabe = (AufgabeAbstract) Activator.CreateInstance(t);
+				(string output, Stopwatch time) resultData = (null, null);
+				if(Debugger.IsAttached) {
+					resultData =
+							aufgabe.MainMethod(
+								new Reader(Environment.CurrentDirectory + "/Aufgabendata/" + Aufgabe + ".data"),
+								IsDebug
+							);
+				} else {
+					try {
+						resultData =
+							aufgabe.MainMethod(
+								new Reader(Environment.CurrentDirectory + "/Aufgabendata/" + Aufgabe + ".data"),
+								IsDebug
+							);
+					} catch(Exception exc) {
+						UIConsole.WriteLine(exc.StackTrace);
+					}
+				}
+				if(resultData == (null, null)) {
+					UIConsole.WriteLine("Not Implemented!");
+				} else {
+					UIConsole.WriteLine("Output: " + resultData.output);
+					UIConsole.WriteLine("Time elapsed: " + (long) (resultData.time.Elapsed.TotalMilliseconds * 1000) + "µs");
+				}
+			}
+		}
+			
+
 		public void RunAOC(string prog, bool IsDebug, bool IsOpenFile) {
 			if(IsOpenFile) {
 				UIConsole.WriteLine("data Aufgabe" + prog);
-
-				Process.Start("notepad.exe", Environment.CurrentDirectory + "/Aufgabendata/Aufgabe" + prog + ".data");
+				CommandOpenFile("Aufgabe" + prog);
 			} else {
 				UIConsole.WriteLine("start Aufgabe" + prog + (IsDebug ? " -d " : ""));
-				Type t = Type.GetType("AdventOfCoding.Aufgaben.Aufgabe" + prog);
-				if(t == null) {
-					UIConsole.WriteLine("Class 'AdventOfCoding.Aufgaben.Aufgabe" + prog + "' not found!");
-				} else {
-					AufgabeAbstract aufgabe = (AufgabeAbstract) Activator.CreateInstance(t);
-					(string output, Stopwatch time) resultData = (null, null);
-					if(Debugger.IsAttached) {
-						resultData =
-								aufgabe.MainMethod(
-									new Reader(Environment.CurrentDirectory + "/Aufgabendata/Aufgabe" + prog + ".data"),
-									IsDebug
-								);
-					} else {
-						try {
-							resultData =
-								aufgabe.MainMethod(
-									new Reader(Environment.CurrentDirectory + "/Aufgabendata/Aufgabe" + prog + ".data"),
-									IsDebug
-								);
-						} catch(Exception exc) {
-							UIConsole.WriteLine(exc.StackTrace);
-						}
-					}
-					if(resultData == (null, null)) {
-						UIConsole.WriteLine("Not Implemented!");
-					} else {
-						UIConsole.WriteLine("Output: " + resultData.output);
-						UIConsole.WriteLine("Time elapsed: " + (long) (resultData.time.Elapsed.TotalMilliseconds * 1000) + "µs");
-					}
-				}
+				CommandStartAufgabe("Aufgabe" + prog, IsDebug);
 			}
 			this.Dispatcher.Invoke(() => {
 				foreach(var aocbutton in AOCButtons) {
