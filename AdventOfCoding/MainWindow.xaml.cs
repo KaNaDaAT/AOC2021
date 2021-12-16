@@ -30,6 +30,7 @@ namespace AdventOfCoding {
 			InitializeComponent();
 			UIConsole.WriteLine("AdventOfCoding Started...");
 			UIConsole.SwitchToCommandMode();
+			UIConsole.SetDispatcher(this.Dispatcher);
 
 			CreateAdventButtons();
 		}
@@ -88,20 +89,14 @@ namespace AdventOfCoding {
 
 		public void RunAOC(string prog, bool IsDebug, bool IsOpenFile) {
 			if(IsOpenFile) {
-				this.Dispatcher.Invoke(() => {
-					UIConsole.WriteLine("data Aufgabe" + prog);
-				});
+				UIConsole.WriteLine("data Aufgabe" + prog);
 
 				Process.Start("notepad.exe", Environment.CurrentDirectory + "/Aufgabendata/Aufgabe" + prog + ".data");
 			} else {
-				this.Dispatcher.Invoke(() => {
-					UIConsole.WriteLine("start Aufgabe" + prog + (IsDebug ? " -d " : ""));
-				});
+				UIConsole.WriteLine("start Aufgabe" + prog + (IsDebug ? " -d " : ""));
 				Type t = Type.GetType("AdventOfCoding.Aufgaben.Aufgabe" + prog);
 				if(t == null) {
-					this.Dispatcher.Invoke(() => {
-						UIConsole.WriteLine("Class 'AdventOfCoding.Aufgaben.Aufgabe" + prog + "' not found!");
-					});
+					UIConsole.WriteLine("Class 'AdventOfCoding.Aufgaben.Aufgabe" + prog + "' not found!");
 				} else {
 					AufgabeAbstract aufgabe = (AufgabeAbstract) Activator.CreateInstance(t);
 					(string output, Stopwatch time) resultData = (null, null);
@@ -123,14 +118,10 @@ namespace AdventOfCoding {
 						}
 					}
 					if(resultData == (null, null)) {
-						this.Dispatcher.Invoke(() => {
-							UIConsole.WriteLine("Not Implemented!");
-						});
+						UIConsole.WriteLine("Not Implemented!");
 					} else {
-						this.Dispatcher.Invoke(() => {
-							UIConsole.WriteLine("Output: " + resultData.output);
-							UIConsole.WriteLine("Time elapsed: " + (long) (resultData.time.Elapsed.TotalMilliseconds * 1000) + "µs");
-						});
+						UIConsole.WriteLine("Output: " + resultData.output);
+						UIConsole.WriteLine("Time elapsed: " + (long) (resultData.time.Elapsed.TotalMilliseconds * 1000) + "µs");
 					}
 				}
 			}

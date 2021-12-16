@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace AdventOfCoding {
 	public partial class UIConsole : UserControl {
@@ -34,6 +35,8 @@ namespace AdventOfCoding {
 			private set { }
 		}
 
+		private Dispatcher dispatcher;
+
 		private Dictionary<string, Action> commands;
 
 		public UIConsole() {
@@ -44,17 +47,34 @@ namespace AdventOfCoding {
 			tbConsole.KeyDown += OnKeyDownHandler;
 		}
 
+		public static void SetDispatcher(Dispatcher dispatcher) {
+			Instance.dispatcher = dispatcher;
+		}
+
 		public static void Write(object output) {
 			Write(output.ToString());
 		}
 
 		public static void Write(string output) {
-			Instance.lbStatus.Content = UIConsoleState.Idle;
-			Instance.isUserInput = false;
-			Instance.tbConsole.Text += output;
-			Instance.CurrentText = Instance.tbConsole.Text;
-			Instance.CurrentLine = Instance.tbConsole.Text.Count(f => f == '\n');
-			Instance.isUserInput = true;
+			if(Instance.dispatcher != null) {
+				Instance.dispatcher.Invoke(() => {
+					Instance.lbStatus.Content = UIConsoleState.Idle;
+					Instance.isUserInput = false;
+					Instance.tbConsole.Text += output;
+					Instance.CurrentText = Instance.tbConsole.Text;
+					Instance.CurrentLine = Instance.tbConsole.Text.Count(f => f == '\n');
+					Instance.isUserInput = true;
+					Instance.tbConsole.ScrollToEnd();
+				});
+			} else {
+				Instance.lbStatus.Content = UIConsoleState.Idle;
+				Instance.isUserInput = false;
+				Instance.tbConsole.Text += output;
+				Instance.CurrentText = Instance.tbConsole.Text;
+				Instance.CurrentLine = Instance.tbConsole.Text.Count(f => f == '\n');
+				Instance.isUserInput = true;
+				Instance.tbConsole.ScrollToEnd();
+			}
 		}
 
 		public static void WriteLine(object output) {
@@ -62,12 +82,7 @@ namespace AdventOfCoding {
 		}
 
 		public static void WriteLine(string output) {
-			Instance.isUserInput = false;
-			Instance.tbConsole.Text += output + Environment.NewLine;
-			Instance.CurrentText = Instance.tbConsole.Text;
-			Instance.CurrentLine = Instance.tbConsole.LineCount - 1;
-			Instance.isUserInput = true;
-			Instance.tbConsole.ScrollToEnd();
+			Write(output + Environment.NewLine);
 		}
 
 		public static void SetText(string output) {
@@ -101,7 +116,7 @@ namespace AdventOfCoding {
 		}
 
 		public static void ExecuteCommand(params string[] command) {
-			
+
 		}
 
 		#region Event
