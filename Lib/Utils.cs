@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Lib {
@@ -27,6 +29,20 @@ namespace Lib {
 			} else {
 				dict[key] = value;
 			}
+		}
+
+		/// <see cref="https://stackoverflow.com/questions/4269737/function-convert-hex-string-to-bitarray-c-sharp"/>
+		public static BitArray ConvertHexToBitArray(string hexData) {
+			if(hexData == null)
+				return null;
+			BitArray ba = new BitArray(4 * hexData.Length);
+			for(int i = 0; i < hexData.Length; i++) {
+				byte b = byte.Parse(hexData[i].ToString(), NumberStyles.HexNumber);
+				for(int j = 0; j < 4; j++) {
+					ba.Set(i * 4 + j, (b & (1 << (3 - j))) != 0);
+				}
+			}
+			return ba;
 		}
 
 	}
