@@ -1,11 +1,14 @@
 ﻿using Lib;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace AdventOfCoding.Aufgaben {
 	public class Aufgabe19B : AufgabeAbstract {
 
 		protected override void Runner(Reader reader) {
+
 			string[] lines = reader.ReadAndGetLines();
 
 

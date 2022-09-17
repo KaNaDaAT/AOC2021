@@ -77,6 +77,8 @@ namespace Lib {
 			_data = data;
 		}
 
+		public Grid(T[] data) : this(data, (int) Math.Sqrt(data.Length)) {}
+
 		public Grid(Grid<T> grid) {
 			this._data = (T[]) grid._data.Clone();
 			this.rowSize = grid.rowSize;
@@ -108,6 +110,13 @@ namespace Lib {
 				return _data[column + this.rowSize * row];
 			}
 			return default(T);
+		}
+
+		public T Get(int column, int row, T back) {
+			if(ValidateIndex(column, row)) {
+				return _data[column + this.rowSize * row];
+			}
+			return back;
 		}
 
 		public T Get(int index) {
@@ -146,6 +155,14 @@ namespace Lib {
 			}
 		}
 
+		public int IndexToColumn(int index) {
+			return index % rowSize;
+		}
+
+		public int IndexToRow(int index) {
+			return index / rowSize;
+		}
+
 		public T GetNeighbour(int index, Direction direction) {
 			return default(T);
 		}
@@ -154,19 +171,49 @@ namespace Lib {
 			return default(T);
 		}
 
-		public List<T> GetAdjcent(int column, int row, bool ignoreCorners = false) {
-			return new List<T>();
+		public List<T> GetAdjcent(int column, int row, bool ignoreCorners = true) {
+			List<T> adjcent = new List<T>();
+			if(IsValidIndex(column - 1, row)) {
+				adjcent.Add(Get(column - 1, row));
+			}
+			if(IsValidIndex(column + 1, row)) {
+				adjcent.Add(Get(column + 1, row));
+			}
+			if(IsValidIndex(column, row - 1)) {
+				adjcent.Add(Get(column, row - 1));
+			}
+			if(IsValidIndex(column, row + 1)) {
+				adjcent.Add(Get(column, row + 1));
+			}
+			if(!ignoreCorners) {
+				if(IsValidIndex(column - 1, row - 1)) {
+					adjcent.Add(Get(column, row));
+				}
+				if(IsValidIndex(column - 1, row + 1)) {
+					adjcent.Add(Get(column - 1, row + 1));
+				}
+				if(IsValidIndex(column + 1, row - 1)) {
+					adjcent.Add(Get(column + 1, row - 1));
+				}
+				if(IsValidIndex(column + 1, row + 1)) {
+					adjcent.Add(Get(column + 1, row + 1));
+				}
+			}
+			return adjcent;
 		}
 
 		public List<T> GetAdjcent(int index, bool ignoreCorners = false) {
-			return new List<T>();
+			int column = index % rowSize;
+			int row = index / rowSize;
+			return GetAdjcent(column, row, ignoreCorners);
 		}
 
 		public List<T> GetInRadius(int column, int row, int radius = 1, bool ignoreCorners = false) {
-			return new List<T>();
+			List<T> inradius = new List<T>();
+			return inradius;
 		}
 
-		public List<T> GetInRadius(int index, bool ignoreCorners = false) {
+		public List<T> GetInRadius(int index, int radius = 1, bool ignoreCorners = false) {
 			return new List<T>();
 		}
 
